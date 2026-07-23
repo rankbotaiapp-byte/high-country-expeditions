@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rapids Ready</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:#060f14;color:#e8f4f8;font-family:'Segoe UI',system-ui,sans-serif;max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden;}
+  .screen{display:none;padding-bottom:90px;min-height:100vh;}
+  .screen.active{display:block;}
+
+  /* TAB BAR */
+  .tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#071520;border-top:1px solid #0a4d6844;display:flex;justify-content:space-around;align-items:center;padding:8px 4px 14px;z-index:1000;}
+  .tab{background:none;border:none;color:#4a7a8a;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 6px;border-radius:10px;transition:all .2s;min-width:44px;}
+  .tab-icon{font-size:20px;line-height:1;}
+  .tab-label{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+  .tab.tabon{color:#ff6b35;}
+  .tab.tabon .tab-icon{filter:drop-shadow(0 0 6px #ff6b3588);}
+
+  /* COMMON */
+  .app-header{background:linear-gradient(180deg,#0a4d68 0%,#071e2b 100%);padding:20px 20px 24px;position:relative;overflow:hidden;}
+  .app-header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:20px;background:#060f14;border-radius:20px 20px 0 0;}
+  .wordmark{font-size:26px;font-weight:800;letter-spacing:-1px;color:#fff;}
+  .wordmark span{color:#ff6b35;}
+  .tagline{font-size:12px;color:#7ab8cc;margin-top:2px;}
+  .wave-bg{position:absolute;top:0;right:-20px;opacity:.08;font-size:120px;line-height:1;}
+
+  .section-title{font-size:13px;font-weight:700;color:#7ab8cc;text-transform:uppercase;letter-spacing:1px;margin:20px 20px 12px;}
+  .card{background:#0d2535;border-radius:16px;margin:0 16px 12px;overflow:hidden;border:1px solid #0a4d6833;}
+  .card-inner{padding:16px;}
+  .btn-primary{background:#ff6b35;color:#fff;border:none;padding:14px 24px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;width:100%;letter-spacing:.3px;transition:all .2s;box-shadow:0 4px 20px #ff6b3544;}
+  .btn-primary:active{transform:scale(.97);}
+  .btn-secondary{background:#0a4d68;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+  .btn-secondary:active{transform:scale(.97);}
+  .btn-outline{background:transparent;color:#ff6b35;border:2px solid #ff6b35;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+  .badge{background:#ff6b35;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;display:inline-block;}
+  .badge-teal{background:#0a4d68;color:#7ab8cc;}
+  .divider{height:1px;background:#0a4d6828;margin:12px 0;}
+  .rating-stars{color:#ff6b35;font-size:14px;}
+  .pill{background:#0a4d6844;color:#7ab8cc;font-size:11px;padding:4px 10px;border-radius:20px;display:inline-block;font-weight:600;}
+
+  /* HOME */
+  .hero-card{background:linear-gradient(135deg,#0a4d68,#071e2b);margin:16px;border-radius:20px;padding:24px;position:relative;overflow:hidden;border:1px solid #0a4d6866;}
+  .hero-emoji{font-size:80px;position:absolute;right:-10px;bottom:-10px;opacity:.2;}
+  .hero-title{font-size:22px;font-weight:800;color:#fff;line-height:1.2;}
+  .hero-sub{font-size:13px;color:#7ab8cc;margin:8px 0 16px;}
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 4px;}
+  .quick-card{background:#0d2535;border-radius:14px;padding:16px 14px;border:1px solid #0a4d6833;cursor:pointer;transition:all .2s;text-align:center;}
+  .quick-card:active{transform:scale(.96);}
+  .quick-card .qc-icon{font-size:30px;margin-bottom:6px;}
+  .quick-card .qc-label{font-size:12px;font-weight:700;color:#e8f4f8;}
+  .quick-card .qc-sub{font-size:10px;color:#4a7a8a;margin-top:2px;}
+  .trip-card{background:#0d2535;border-radius:14px;margin:0 16px 12px;border:1px solid #0a4d6833;overflow:hidden;cursor:pointer;}
+  .trip-img{height:120px;background:linear-gradient(135deg,#0a4d68 0%,#0d6e8a 100%);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;}
+  .trip-img-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,#0d2535,transparent);height:40px;}
+  .trip-info{padding:12px 14px;}
+  .trip-name{font-size:15px;font-weight:700;color:#fff;}
+  .trip-meta{font-size:12px;color:#4a7a8a;margin:4px 0 10px;}
+  .trip-row{display:flex;justify-content:space-between;align-items:center;}
+
+  /* BOOKING */
+  .book-step{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .step-label{font-size:11px;font-weight:800;color:#ff6b35;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+  .date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;}
+  .date-day{font-size:9px;color:#4a7a8a;font-weight:700;padding-bottom:4px;}
+  .date-num{background:#0a4d6822;border-radius:8px;padding:8px 2px;font-size:13px;cursor:pointer;transition:all .2s;color:#c0dde8;}
+  .date-num.selected{background:#ff6b35;color:#fff;font-weight:700;}
+  .date-num.disabled{color:#1e3a4a;cursor:default;}
+  .time-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .time-slot{background:#0a4d6822;border-radius:10px;padding:10px;text-align:center;font-size:13px;cursor:pointer;transition:all .2s;color:#c0dde8;font-weight:600;}
+  .time-slot.selected{background:#ff6b35;color:#fff;}
+  .time-slot.full{color:#1e3a4a;cursor:default;}
+  .trip-option{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;}
+  .trip-option input[type=radio]{accent-color:#ff6b35;width:18px;height:18px;}
+  .trip-option-info .name{font-size:14px;font-weight:700;color:#e8f4f8;}
+  .trip-option-info .meta{font-size:12px;color:#4a7a8a;}
+  .trip-option-price{margin-left:auto;font-size:16px;font-weight:800;color:#ff6b35;}
+  .guests-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;}
+  .guests-ctrl{display:flex;align-items:center;gap:16px;}
+  .gc-btn{background:#0a4d68;color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .gc-val{font-size:22px;font-weight:800;color:#ff6b35;min-width:30px;text-align:center;}
+
+  /* SERVICES */
+  .service-card{background:#0d2535;border-radius:16px;margin:0 16px 12px;border:1px solid #0a4d6833;overflow:hidden;}
+  .service-header{background:linear-gradient(90deg,#0a4d68,#0d6e8a);padding:16px;display:flex;align-items:center;gap:14px;}
+  .service-icon{font-size:36px;}
+  .service-title{font-size:16px;font-weight:800;color:#fff;}
+  .service-tagline{font-size:12px;color:#7ab8cc;}
+  .service-body{padding:14px 16px;}
+  .include-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:#c0dde8;}
+  .include-row::before{content:'✓';color:#ff6b35;font-weight:800;font-size:12px;}
+  .price-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+  .price-from{font-size:11px;color:#4a7a8a;}
+  .price-val{font-size:22px;font-weight:800;color:#ff6b35;}
+  .price-per{font-size:11px;color:#4a7a8a;}
+
+  /* PAYMENTS */
+  .pay-summary{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .pay-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;}
+  .pay-row .label{color:#7ab8cc;}
+  .pay-row .val{color:#e8f4f8;font-weight:600;}
+  .pay-row.total{border-top:1px solid #0a4d6844;margin-top:4px;padding-top:12px;}
+  .pay-row.total .label{font-weight:700;color:#e8f4f8;font-size:16px;}
+  .pay-row.total .val{font-size:20px;font-weight:800;color:#ff6b35;}
+  .payment-method{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .pm-label{font-size:13px;font-weight:700;color:#7ab8cc;margin-bottom:12px;}
+  .pm-option{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;}
+  .pm-option input[type=radio]{accent-color:#ff6b35;width:18px;height:18px;}
+  .pm-icon{font-size:24px;}
+  .pm-name{font-size:14px;font-weight:600;color:#e8f4f8;}
+  .pm-sub{font-size:11px;color:#4a7a8a;}
+  .input-field{background:#071e2b;border:1px solid #0a4d6844;border-radius:10px;padding:12px 14px;color:#e8f4f8;font-size:14px;width:100%;margin-bottom:10px;outline:none;}
+  .input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .success-screen{text-align:center;padding:40px 24px;}
+  .success-icon{font-size:72px;margin-bottom:16px;}
+  .success-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:8px;}
+  .success-sub{font-size:14px;color:#7ab8cc;line-height:1.6;}
+
+  /* STAFF */
+  .staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px;}
+  .staff-card{background:#0d2535;border-radius:16px;padding:16px;border:1px solid #0a4d6833;text-align:center;cursor:pointer;transition:all .2s;}
+  .staff-card:active{transform:scale(.96);}
+  .staff-avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#0a4d68,#0d6e8a);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid #ff6b3566;}
+  .staff-name{font-size:13px;font-weight:700;color:#fff;}
+  .staff-role{font-size:11px;color:#ff6b35;margin-top:2px;}
+  .staff-exp{font-size:10px;color:#4a7a8a;margin-top:4px;}
+  .cert-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;justify-content:center;}
+
+  /* REMINDERS */
+  .reminder-card{background:#0d2535;border-radius:14px;margin:0 16px 10px;padding:14px 16px;border:1px solid #0a4d6833;display:flex;align-items:center;gap:14px;}
+  .reminder-icon{font-size:28px;min-width:40px;text-align:center;}
+  .reminder-info .r-title{font-size:14px;font-weight:700;color:#fff;}
+  .reminder-info .r-sub{font-size:12px;color:#4a7a8a;margin-top:2px;}
+  .toggle{width:46px;height:26px;background:#0a4d68;border-radius:13px;position:relative;cursor:pointer;transition:all .3s;margin-left:auto;flex-shrink:0;}
+  .toggle.on{background:#ff6b35;}
+  .toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:all .3s;}
+  .toggle.on::after{left:23px;}
+  .upcoming-trip{background:linear-gradient(135deg,#0a4d68,#071e2b);border-radius:16px;margin:0 16px 16px;padding:16px;border:1px solid #0a4d6866;}
+  .ut-title{font-size:11px;font-weight:800;color:#ff6b35;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+  .ut-name{font-size:18px;font-weight:800;color:#fff;}
+  .ut-date{font-size:13px;color:#7ab8cc;margin-top:4px;}
+  .countdown{display:flex;gap:12px;margin-top:14px;}
+  .cd-unit{background:#0a4d6844;border-radius:10px;padding:10px 14px;text-align:center;}
+  .cd-num{font-size:22px;font-weight:800;color:#ff6b35;}
+  .cd-lbl{font-size:10px;color:#4a7a8a;text-transform:uppercase;}
+
+  /* WAITLIST */
+  .waitlist-header{background:linear-gradient(135deg,#0a4d68,#071e2b);margin:16px;border-radius:16px;padding:20px;border:1px solid #0a4d6866;}
+  .wl-stat{display:flex;gap:16px;margin-top:14px;}
+  .wl-stat-item{background:#0a4d6844;border-radius:10px;padding:10px 16px;text-align:center;flex:1;}
+  .wl-stat-num{font-size:24px;font-weight:800;color:#ff6b35;}
+  .wl-stat-lbl{font-size:10px;color:#7ab8cc;text-transform:uppercase;}
+  .waitlist-item{background:#0d2535;border-radius:14px;margin:0 16px 10px;padding:14px 16px;border:1px solid #0a4d6833;display:flex;align-items:center;gap:12px;}
+  .wl-pos{width:36px;height:36px;background:#ff6b3522;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ff6b35;flex-shrink:0;}
+  .wl-name{font-size:14px;font-weight:700;color:#fff;}
+  .wl-trip{font-size:12px;color:#4a7a8a;}
+  .wl-time{margin-left:auto;font-size:12px;color:#7ab8cc;text-align:right;}
+  .join-form{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .jf-title{font-size:14px;font-weight:700;color:#ff6b35;margin-bottom:12px;}
+
+  /* GALLERY */
+  .gallery-filters{display:flex;gap:8px;padding:4px 16px 4px;overflow-x:auto;scrollbar-width:none;}
+  .gallery-filters::-webkit-scrollbar{display:none;}
+  .gf-btn{background:#0d2535;border:1px solid #0a4d6833;color:#7ab8cc;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .gf-btn.active{background:#ff6b35;border-color:#ff6b35;color:#fff;}
+  .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 16px;}
+  .gallery-item{border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#0a4d68,#071e2b);aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:54px;position:relative;cursor:pointer;transition:all .2s;}
+  .gallery-item:active{transform:scale(.96);}
+  .gallery-item.wide{grid-column:span 2;aspect-ratio:2/1;}
+  .gi-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,#060f14cc,transparent);padding:10px;font-size:11px;color:#e8f4f8;font-weight:600;}
+
+  /* REVIEWS */
+  .overall-rating{background:linear-gradient(135deg,#0a4d68,#071e2b);margin:16px;border-radius:16px;padding:20px;display:flex;align-items:center;gap:20px;border:1px solid #0a4d6866;}
+  .or-num{font-size:56px;font-weight:900;color:#ff6b35;line-height:1;}
+  .or-stars{font-size:20px;color:#ff6b35;margin-bottom:4px;}
+  .or-count{font-size:12px;color:#4a7a8a;}
+  .rating-bar{display:flex;align-items:center;gap:8px;margin:3px 0;}
+  .rb-label{font-size:11px;color:#4a7a8a;width:14px;}
+  .rb-bar{flex:1;height:6px;background:#0a4d6833;border-radius:3px;overflow:hidden;}
+  .rb-fill{height:100%;background:#ff6b35;border-radius:3px;}
+  .review-card{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .rc-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .rc-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0a4d68,#0d6e8a);display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .rc-name{font-size:14px;font-weight:700;color:#fff;}
+  .rc-date{font-size:11px;color:#4a7a8a;}
+  .rc-trip{font-size:11px;color:#ff6b35;margin-top:2px;}
+  .rc-text{font-size:13px;color:#c0dde8;line-height:1.6;}
+  .rc-stars{margin-left:auto;color:#ff6b35;font-size:13px;}
+
+  /* MAPS */
+  .map-placeholder{background:linear-gradient(135deg,#071e2b,#0a3d50);margin:16px;border-radius:16px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #0a4d6866;position:relative;overflow:hidden;}
+  .map-grid{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(#0a4d6811 1px,transparent 1px),linear-gradient(90deg,#0a4d6811 1px,transparent 1px);background-size:30px 30px;}
+  .map-marker{font-size:40px;z-index:1;}
+  .map-label{font-size:13px;font-weight:700;color:#fff;z-index:1;margin-top:8px;}
+  .map-sub{font-size:11px;color:#7ab8cc;z-index:1;}
+  .location-card{background:#0d2535;border-radius:16px;margin:0 16px 12px;padding:16px;border:1px solid #0a4d6833;}
+  .lc-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;}
+  .lc-addr{font-size:13px;color:#4a7a8a;line-height:1.6;}
+  .direction-row{display:flex;gap:8px;margin-top:12px;}
+  .hours-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid #0a4d6822;}
+  .hours-row .day{color:#7ab8cc;}
+  .hours-row .time{color:#e8f4f8;font-weight:600;}
+  .hours-row.today .day{color:#ff6b35;font-weight:700;}
+  .hours-row.today .time{color:#ff6b35;}
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab tabon" id="tab-home" onclick="showScreen('screen-home')"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></button>
+  <button class="tab" id="tab-book" onclick="showScreen('screen-book')"><span class="tab-icon">📅</span><span class="tab-label">Book</span></button>
+  <button class="tab" id="tab-services" onclick="showScreen('screen-services')"><span class="tab-icon">🛠</span><span class="tab-label">Trips</span></button>
+  <button class="tab" id="tab-gallery" onclick="showScreen('screen-gallery')"><span class="tab-icon">📷</span><span class="tab-label">Gallery</span></button>
+  <button class="tab" id="tab-more" onclick="showScreen('screen-more')"><span class="tab-icon">⋯</span><span class="tab-label">More</span></button>
+</div>
+
+<!-- ═══════════════════════════════════════ HOME ═══════════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="app-header">
+    <span class="wave-bg">🌊</span>
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">WhiteWater Rafting &amp; Adventure Co.</div>
+  </div>
+
+  <div class="hero-card">
+    <span class="hero-emoji">🚣</span>
+    <div class="hero-title">Feel the<br>Rush Today</div>
+    <div class="hero-sub">Colorado River • Class III–V Adventures</div>
+    <button class="btn-primary" onclick="showScreen('screen-book')" style="width:auto;padding:12px 28px;">Book a Trip →</button>
+  </div>
+
+  <div class="section-title">Quick Actions</div>
+  <div class="quick-grid">
+    <div class="quick-card" onclick="showScreen('screen-book')">
+      <div class="qc-icon">📅</div>
+      <div class="qc-label">Book Now</div>
+      <div class="qc-sub">Next slot: Sat 9am</div>
+    </div>
+    <div class="quick-card" onclick="showScreen('screen-waitlist')">
+      <div class="qc-icon">📋</div>
+      <div class="qc-label">Waitlist</div>
+      <div class="qc-sub">3 spots open</div>
+    </div>
+    <div class="quick-card" onclick="showScreen('screen-reviews')">
+      <div class="qc-icon">⭐</div>
+      <div class="qc-label">Reviews</div>
+      <div class="qc-sub">4.9 · 312 ratings</div>
+    </div>
+    <div class="quick-card" onclick="showScreen('screen-maps')">
+      <div class="qc-icon">📍</div>
+      <div class="qc-label">Directions</div>
+      <div class="qc-sub">2.3 mi away</div>
+    </div>
+  </div>
+
+  <div class="section-title">Featured Trips</div>
+
+  <div class="trip-card" onclick="showScreen('screen-services')">
+    <div class="trip-img">🌊<div class="trip-img-overlay"></div></div>
+    <div class="trip-info">
+      <div class="trip-name">Grand Canyon Express</div>
+      <div class="trip-meta">Half Day · Class IV · Min age 14</div>
+      <div class="trip-row">
+        <div class="rating-stars">★★★★★ <span style="color:#4a7a8a;font-size:11px;">4.9</span></div>
+        <div style="font-size:17px;font-weight:800;color:#ff6b35;">$89<span style="font-size:11px;color:#4a7a8a;">/person</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="trip-card" onclick="showScreen('screen-services')">
+    <div class="trip-img" style="background:linear-gradient(135deg,#071e2b,#0a4d68);">🏔️<div class="trip-img-overlay"></div></div>
+    <div class="trip-info">
+      <div class="trip-name">Rocky Mountain Full Day</div>
+      <div class="trip-meta">Full Day · Class V · Expert preferred</div>
+      <div class="trip-row">
+        <div class="rating-stars">★★★★★ <span style="color:#4a7a8a;font-size:11px;">5.0</span></div>
+        <div style="font-size:17px;font-weight:800;color:#ff6b35;">$149<span style="font-size:11px;color:#4a7a8a;">/person</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Meet Your Guides</div>
+  <div style="margin:0 16px 16px;">
+    <button class="btn-secondary" onclick="showScreen('screen-staff')" style="width:100%;">View All Guides & Staff →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ BOOK ═══════════════════════════════════════ -->
+<div class="screen" id="screen-book">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Online Booking</div>
+  </div>
+
+  <div class="section-title" style="margin-top:16px;">Select Your Trip</div>
+  <div class="book-step">
+    <div class="step-label">Step 1 · Choose Experience</div>
+    <div class="trip-option">
+      <input type="radio" name="trip" id="t1" checked>
+      <div class="trip-option-info">
+        <div class="name">Grand Canyon Express</div>
+        <div class="meta">Half Day · Class IV · 4hrs</div>
+      </div>
+      <div class="trip-option-price">$89</div>
+    </div>
+    <div class="divider"></div>
+    <div class="trip-option">
+      <input type="radio" name="trip" id="t2">
+      <div class="trip-option-info">
+        <div class="name">Rocky Mountain Full Day</div>
+        <div class="meta">Full Day · Class V · 8hrs</div>
+      </div>
+      <div class="trip-option-price">$149</div>
+    </div>
+    <div class="divider"></div>
+    <div class="trip-option">
+      <input type="radio" name="trip" id="t3">
+      <div class="trip-option-info">
+        <div class="name">Family Splash Zone</div>
+        <div class="meta">Half Day · Class II · Ages 6+</div>
+      </div>
+      <div class="trip-option-price">$59</div>
+    </div>
+  </div>
+
+  <div class="section-title">Pick a Date</div>
+  <div class="book-step">
+    <div class="step-label">Step 2 · June 2025</div>
+    <div class="date-grid">
+      <div class="date-day">Su</div><div class="date-day">Mo</div><div class="date-day">Tu</div><div class="date-day">We</div><div class="date-day">Th</div><div class="date-day">Fr</div><div class="date-day">Sa</div>
+      <div class="date-num disabled">1</div><div class="date-num disabled">2</div><div class="date-num disabled">3</div><div class="date-num disabled">4</div><div class="date-num disabled">5</div><div class="date-num disabled">6</div><div class="date-num disabled">7</div>
+      <div class="date-num disabled">8</div><div class="date-num disabled">9</div><div class="date-num disabled">10</div><div class="date-num disabled">11</div><div class="date-num disabled">12</div><div class="date-num disabled">13</div><div class="date-num disabled">14</div>
+      <div class="date-num" onclick="selectDate(this)">15</div><div class="date-num" onclick="selectDate(this)">16</div><div class="date-num" onclick="selectDate(this)">17</div><div class="date-num" onclick="selectDate(this)">18</div><div class="date-num" onclick="selectDate(this)">19</div><div class="date-num" onclick="selectDate(this)">20</div><div class="date-num selected" onclick="selectDate(this)">21</div>
+      <div class="date-num" onclick="selectDate(this)">22</div><div class="date-num" onclick="selectDate(this)">23</div><div class="date-num" onclick="selectDate(this)">24</div><div class="date-num" onclick="selectDate(this)">25</div><div class="date-num" onclick="selectDate(this)">26</div><div class="date-num" onclick="selectDate(this)">27</div><div class="date-num" onclick="selectDate(this)">28</div>
+      <div class="date-num" onclick="selectDate(this)">29</div><div class="date-num" onclick="selectDate(this)">30</div>
+    </div>
+  </div>
+
+  <div class="section-title">Choose Time</div>
+  <div class="book-step">
+    <div class="step-label">Step 3 · Available Slots</div>
+    <div class="time-grid">
+      <div class="time-slot full">7:00 AM<br><span style="font-size:10px;color:#1e3a4a;">Full</span></div>
+      <div class="time-slot selected" onclick="selectTime(this)">9:00 AM</div>
+      <div class="time-slot" onclick="selectTime(this)">11:00 AM</div>
+      <div class="time-slot" onclick="selectTime(this)">1:00 PM</div>
+      <div class="time-slot full">3:00 PM<br><span style="font-size:10px;color:#1e3a4a;">Full</span></div>
+      <div class="time-slot" onclick="selectTime(this)">5:00 PM</div>
+    </div>
+  </div>
+
+  <div class="section-title">Guests</div>
+  <div class="book-step">
+    <div class="step-label">Step 4 · Party Size</div>
+    <div class="guests-row">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#fff;">Adults</div>
+        <div style="font-size:12px;color:#4a7a8a;">Age 14+</div>
+      </div>
+      <div class="guests-ctrl">
+        <button class="gc-btn" onclick="changeGuest('a',-1)">−</button>
+        <div class="gc-val" id="guest-a">2</div>
+        <button class="gc-btn" onclick="changeGuest('a',1)">+</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="guests-row">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#fff;">Youth</div>
+        <div style="font-size:12px;color:#4a7a8a;">Age 6–13</div>
+      </div>
+      <div class="guests-ctrl">
+        <button class="gc-btn" onclick="changeGuest('y',-1)">−</button>
+        <div class="gc-val" id="guest-y">0</div>
+        <button class="gc-btn" onclick="changeGuest('y',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-payments')">Continue to Payment →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SERVICES ═══════════════════════════════════════ -->
+<div class="screen" id="screen-services">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Our Adventures</div>
+  </div>
+
+  <div class="section-title" style="margin-top:16px;">All Experiences</div>
+
+  <div class="service-card">
+    <div class="service-header">
+      <div class="service-icon">🌊</div>
+      <div>
+        <div class="service-title">Grand Canyon Express</div>
+        <div class="service-tagline">Half Day · Class IV Whitewater</div>
+      </div>
+    </div>
+    <div class="service-body">
+      <div class="include-row">Certified Class IV guide included</div>
+      <div class="include-row">All safety gear & wet suit provided</div>
+      <div class="include-row">Riverside lunch stop</div>
+      <div class="include-row">Photo package available</div>
+      <div class="price-row">
+        <div><div class="price-from">Starting from</div><div class="price-val">$89 <span class="price-per">/person</span></div></div>
+        <button class="btn-primary" onclick="showScreen('screen-book')" style="width:auto;padding:10px 18px;font-size:13px;">Book Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-header" style="background:linear-gradient(90deg,#071e2b,#0a3d50);">
+      <div class="service-icon">🏔️</div>
+      <div>
+        <div class="service-title">Rocky Mountain Full Day</div>
+        <div class="service-tagline">Full Day · Class V Expert Level</div>
+      </div>
+    </div>
+    <div class="service-body">
+      <div class="include-row">2 experienced Class V guides</div>
+      <div class="include-row">Premium gear & drysuit rental</div>
+      <div class="include-row">Full catered riverside BBQ lunch</div>
+      <div class="include-row">Shuttle service from base camp</div>
+      <div class="include-row">Rescue training briefing</div>
+      <div class="price-row">
+        <div><div class="price-from">Starting from</div><div class="price-val">$149 <span class="price-per">/person</span></div></div>
+        <button class="btn-primary" onclick="showScreen('screen-book')" style="width:auto;padding:10px 18px;font-size:13px;">Book Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-header" style="background:linear-gradient(90deg,#0a3d50,#0d6e8a);">
+      <div class="service-icon">👨‍👩‍👧</div>
+      <div>
+        <div class="service-title">Family Splash Zone</div>
+        <div class="service-tagline">Half Day · Class II · Ages 6+</div>
+      </div>
+    </div>
+    <div class="service-body">
+      <div class="include-row">Family-certified guide</div>
+      <div class="include-row">Kids' PFDs & helmets included</div>
+      <div class="include-row">Calm scenic float sections</div>
+      <div class="include-row">Riverbank picnic area access</div>
+      <div class="price-row">
+        <div><div class="price-from">Starting from</div><div class="price-val">$59 <span class="price-per">/person</span></div></div>
+        <button class="btn-primary" onclick="showScreen('screen-book')" style="width:auto;padding:10px 18px;font-size:13px;">Book Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-header" style="background:linear-gradient(90deg,#1a1a2e,#0a4d68);">
+      <div class="service-icon">🌙</div>
+      <div>
+        <div class="service-title">Moonlight Float</div>
+        <div class="service-tagline">Evening · Class II · 21+ Event</div>
+      </div>
+    </div>
+    <div class="service-body">
+      <div class="include-row">Sunset & moonlit river experience</div>
+      <div class="include-row">Headlamps & glow gear included</div>
+      <div class="include-row">Campfire & s'mores at finish</div>
+      <div class="price-row">
+        <div><div class="price-from">Starting from</div><div class="price-val">$75 <span class="price-per">/person</span></div></div>
+        <button class="btn-primary" onclick="showScreen('screen-book')" style="width:auto;padding:10px 18px;font-size:13px;">Book Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ PAYMENTS ═══════════════════════════════════════ -->
+<div class="screen" id="screen-payments">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Secure Payment</div>
+  </div>
+
+  <div class="section-title" style="margin-top:16px;">Order Summary</div>
+  <div class="pay-summary">
+    <div class="pay-row"><div class="label">Grand Canyon Express</div><div class="val">$89.00</div></div>
+    <div class="pay-row"><div class="label">2× Adults</div><div class="val">×2</div></div>
+    <div class="pay-row"><div class="label">Subtotal</div><div class="val">$178.00</div></div>
+    <div class="pay-row"><div class="label">⚡ Gear Package</div><div class="val">$0.00</div></div>
+    <div class="pay-row"><div class="label">Tax (8.5%)</div><div class="val">$15.13</div></div>
+    <div class="pay-row total"><div class="label">Total Due</div><div class="val">$193.13</div></div>
+  </div>
+
+  <div class="payment-method">
+    <div class="pm-label">Payment Method</div>
+    <div class="pm-option">
+      <input type="radio" name="pm" checked>
+      <div class="pm-icon">💳</div>
+      <div><div class="pm-name">Credit / Debit Card</div><div class="pm-sub">Visa, Mastercard, Amex</div></div>
+    </div>
+    <div class="pm-option">
+      <input type="radio" name="pm">
+      <div class="pm-icon">📱</div>
+      <div><div class="pm-name">Apple Pay</div><div class="pm-sub">Touch ID secure</div></div>
+    </div>
+    <div class="pm-option">
+      <input type="radio" name="pm">
+      <div class="pm-icon">🏦</div>
+      <div><div class="pm-name">Bank Transfer</div><div class="pm-sub">ACH / Direct Debit</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Card Details</div>
+  <div style="margin:0 16px 12px;">
+    <input class="input-field" type="text" placeholder="Cardholder Name">
+    <input class="input-field" type="text" placeholder="Card Number •••• •••• •••• ••••">
+    <div class="input-row">
+      <input class="input-field" type="text" placeholder="MM / YY" style="margin-bottom:0;">
+      <input class="input-field" type="text" placeholder="CVV" style="margin-bottom:0;">
+    </div>
+  </div>
+
+  <div style="margin:16px 16px;">
+    <div style="background:#0a4d6822;border-radius:10px;padding:10px 14px;font-size:12px;color:#7ab8cc;margin-bottom:12px;">🔒 256-bit SSL encryption. Your payment data is never stored on our servers.</div>
+    <button class="btn-primary" onclick="showScreen('screen-confirm')">Pay $193.13 Securely →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ CONFIRM ═══════════════════════════════════════ -->
+<div class="screen" id="screen-confirm">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Booking Confirmed!</div>
+  </div>
+  <div class="success-screen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">You're All Set!</div>
+    <div class="success-sub">Your adventure is booked.<br>Confirmation sent to your email.</div>
+    <div style="background:#0d2535;border-radius:16px;padding:20px;margin:24px 0;border:1px solid #0a4d6866;text-align:left;">
+      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:16px;">Booking #RR-20425</div>
+      <div class="pay-row" style="padding:6px 0;"><div class="label">Trip</div><div class="val" style="font-size:13px;">Grand Canyon Express</div></div>
+      <div class="pay-row" style="padding:6px 0;"><div class="label">Date</div><div class="val" style="font-size:13px;">June 21, 2025</div></div>
+      <div class="pay-row" style="padding:6px 0;"><div class="label">Time</div><div class="val" style="font-size:13px;">9:00 AM</div></div>
+      <div class="pay-row" style="padding:6px 0;"><div class="label">Guests</div><div class="val" style="font-size:13px;">2 Adults</div></div>
+      <div class="pay-row" style="padding:6px 0;border-top:1px solid #0a4d6833;padding-top:12px;margin-top:4px;"><div class="label" style="font-weight:700;color:#fff;">Paid</div><div class="val" style="color:#ff6b35;font-size:17px;font-weight:800;">$193.13</div></div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('screen-reminders')">Set Reminders →</button>
+    <div style="margin-top:12px;">
+      <button class="btn-outline" onclick="showScreen('screen-home')">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ STAFF ═══════════════════════════════════════ -->
+<div class="screen" id="screen-staff">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Our Expert Guides</div>
+  </div>
+
+  <div class="section-title" style="margin-top:16px;">Lead Guides</div>
+  <div class="staff-grid">
+    <div class="staff-card" onclick="showScreen('screen-book')">
+      <div class="staff-avatar">🧔</div>
+      <div class="staff-name">Marcus Cole</div>
+      <div class="staff-role">Head Guide</div>
+      <div class="staff-exp">12 yrs experience</div>
+      <div class="cert-row"><span class="pill" style="font-size:9px;">Class V</span><span class="pill" style="font-size:9px;">Rescue</span></div>
+      <div class="rating-stars" style="font-size:12px;margin-top:6px;">★★★★★</div>
+    </div>
+    <div class="staff-card" onclick="showScreen('screen-book')">
+      <div class="staff-avatar">👩‍🦱</div>
+      <div class="staff-name">Sofia Rivera</div>
+      <div class="staff-role">Senior Guide</div>
+      <div class="staff-exp">8 yrs experience</div>
+      <div class="cert-row"><span class="pill" style="font-size:9px;">Class V</span><span class="pill" style="font-size:9px;">First Aid</span></div>
+      <div class="rating-stars" style="font-size:12px;margin-top:6px;">★★★★★</div>
+    </div>
+    <div class="staff-card" onclick="showScreen('screen-book')">
+      <div class="staff-avatar">👱</div>
+      <div class="staff-name">Jake Merritt</div>
+      <div class="staff-role">Family Guide</div>
+      <div class="staff-exp">5 yrs experience</div>
+      <div class="cert-row"><span class="pill" style="font-size:9px;">Class III</span><span class="pill" style="font-size:9px;">Kids</span></div>
+      <div class="rating-stars" style="font-size:12px;margin-top:6px;">★★★★☆</div>
+    </div>
+    <div class="staff-card" onclick="showScreen('screen-book')">
+      <div class="staff-avatar">🧕</div>
+      <div class="staff-name">Amara Osei</div>
+      <div class="staff-role">Night Float Guide</div>
+      <div class="staff-exp">6 yrs experience</div>
+      <div class="cert-row"><span class="pill" style="font-size:9px;">Class IV</span><span class="pill" style="font-size:9px;">Night</span></div>
+      <div class="rating-stars" style="font-size:12px;margin-top:6px;">★★★★★</div>
+    </div>
+  </div>
+
+  <div class="section-title">Support Team</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+        <div style="font-size:30px;">🧰</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;">Gear & Safety Team</div><div style="font-size:12px;color:#4a7a8a;">Equipment check & briefing</div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+        <div style="font-size:30px;">🍖</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;">Riverside Catering</div><div style="font-size:12px;color:#4a7a8a;">Full meals & snack stations</div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+        <div style="font-size:30px;">📸</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;">Photo & Video Crew</div><div style="font-size:12px;color:#4a7a8a;">Capture every rapid</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-book')">Book with a Guide →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ REMINDERS ═══════════════════════════════════════ -->
+<div class="screen" id="screen-reminders">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Appointment Reminders</div>
+  </div>
+
+  <div class="upcoming-trip" style="margin-top:16px;">
+    <div class="ut-title">⚡ Upcoming Adventure</div>
+    <div class="ut-name">Grand Canyon Express</div>
+    <div class="ut-date">📅 Saturday, June 21 · 9:00 AM</div>
+    <div class="countdown">
+      <div class="cd-unit"><div class="cd-num">06</div><div class="cd-lbl">Days</div></div>
+      <div class="cd-unit"><div class="cd-num">14</div><div class="cd-lbl">Hours</div></div>
+      <div class="cd-unit"><div class="cd-num">32</div><div class="cd-lbl">Mins</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Notification Settings</div>
+
+  <div class="reminder-card">
+    <div class="reminder-icon">📱</div>
+    <div class="reminder-info">
+      <div class="r-title">Push Notifications</div>
+      <div class="r-sub">Real-time updates & alerts</div>
+    </div>
+    <div class="toggle on" onclick="toggleReminder(this)"></div>
+  </div>
+  <div class="reminder-card">
+    <div class="reminder-icon">📧</div>
+    <div class="reminder-info">
+      <div class="r-title">Email Reminders</div>
+      <div class="r-sub">Booking confirmations & receipts</div>
+    </div>
+    <div class="toggle on" onclick="toggleReminder(this)"></div>
+  </div>
+  <div class="reminder-card">
+    <div class="reminder-icon">💬</div>
+    <div class="reminder-info">
+      <div class="r-title">SMS Reminders</div>
+      <div class="r-sub">Text message day-of reminders</div>
+    </div>
+    <div class="toggle" onclick="toggleReminder(this)"></div>
+  </div>
+  <div class="reminder-card">
+    <div class="reminder-icon">⏰</div>
+    <div class="reminder-info">
+      <div class="r-title">24hr Reminder</div>
+      <div class="r-sub">Heads-up the day before</div>
+    </div>
+    <div class="toggle on" onclick="toggleReminder(this)"></div>
+  </div>
+  <div class="reminder-card">
+    <div class="reminder-icon">🌅</div>
+    <div class="reminder-info">
+      <div class="r-title">Morning of Reminder</div>
+      <div class="r-sub">Trip-day checklist & weather</div>
+    </div>
+    <div class="toggle on" onclick="toggleReminder(this)"></div>
+  </div>
+
+  <div class="section-title">Trip Checklist</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="display:flex;gap:10px;align-items:center;padding:6px 0;"><span style="font-size:18px;">☑️</span><span style="font-size:13px;color:#c0dde8;">Arrive 30 mins before launch</span></div>
+      <div style="display:flex;gap:10px;align-items:center;padding:6px 0;"><span style="font-size:18px;">☑️</span><span style="font-size:13px;color:#c0dde8;">Wear secure footwear (no flip flops)</span></div>
+      <div style="display:flex;gap:10px;align-items:center;padding:6px 0;"><span style="font-size:18px;">⬜</span><span style="font-size:13px;color:#c0dde8;">Bring sunscreen SPF 50+</span></div>
+      <div style="display:flex;gap:10px;align-items:center;padding:6px 0;"><span style="font-size:18px;">⬜</span><span style="font-size:13px;color:#c0dde8;">Leave valuables secured in car</span></div>
+      <div style="display:flex;gap:10px;align-items:center;padding:6px 0;"><span style="font-size:18px;">⬜</span><span style="font-size:13px;color:#c0dde8;">Bring water bottle (2L min)</span></div>
+    </div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-maps')">View Directions →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ WAITLIST ═══════════════════════════════════════ -->
+<div class="screen" id="screen-waitlist">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Waitlist</div>
+  </div>
+
+  <div class="waitlist-header">
+    <div style="font-size:18px;font-weight:800;color:#fff;">Rocky Mountain Full Day</div>
+    <div style="font-size:13px;color:#7ab8cc;margin-top:4px;">June 21 · 9:00 AM · Currently Full</div>
+    <div class="wl-stat">
+      <div class="wl-stat-item"><div class="wl-stat-num">7</div><div class="wl-stat-lbl">Waiting</div></div>
+      <div class="wl-stat-item"><div class="wl-stat-num">~3</div><div class="wl-stat-lbl">Days Est.</div></div>
+      <div class="wl-stat-item"><div class="wl-stat-num">3</div><div class="wl-stat-lbl">Spots Left</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Current Waitlist</div>
+
+  <div class="waitlist-item">
+    <div class="wl-pos">1</div>
+    <div><div class="wl-name">Chris & Family</div><div class="wl-trip">2 Adults, 1 Youth</div></div>
+    <div class="wl-time">Joined<br>2h ago</div>
+  </div>
+  <div class="waitlist-item">
+    <div class="wl-pos">2</div>
+    <div><div class="wl-name">Denver Group</div><div class="wl-trip">4 Adults</div></div>
+    <div class="wl-time">Joined<br>5h ago</div>
+  </div>
+  <div class="waitlist-item">
+    <div class="wl-pos">3</div>
+    <div><div class="wl-name">Taylor M.</div><div class="wl-trip">1 Adult</div></div>
+    <div class="wl-time">Joined<br>Yesterday</div>
+  </div>
+  <div class="waitlist-item" style="border:1px solid #ff6b3544;background:#ff6b3511;">
+    <div class="wl-pos" style="background:#ff6b3533;color:#ff6b35;">You</div>
+    <div><div class="wl-name" style="color:#ff6b35;">Your Position</div><div class="wl-trip">Join to secure a spot</div></div>
+    <div class="wl-time" style="color:#ff6b35;">Next!</div>
+  </div>
+
+  <div class="section-title">Join Waitlist</div>
+  <div class="join-form">
+    <div class="jf-title">🎯 Get notified when a spot opens</div>
+    <input class="input-field" type="text" placeholder="Your Name">
+    <input class="input-field" type="text" placeholder="Phone Number">
+    <input class="input-field" type="text" placeholder="Email Address">
+    <div style="margin-bottom:12px;">
+      <select style="background:#071e2b;border:1px solid #0a4d6844;border-radius:10px;padding:12px 14px;color:#e8f4f8;font-size:14px;width:100%;outline:none;">
+        <option>Party size: 1 person</option>
+        <option>Party size: 2 people</option>
+        <option>Party size: 3–4 people</option>
+        <option>Party size: 5+ people</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="showScreen('screen-reminders')">Join Waitlist — Get Notified!</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ GALLERY ═══════════════════════════════════════ -->
+<div class="screen" id="screen-gallery">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Photo Gallery</div>
+  </div>
+
+  <div style="margin-top:14px;" class="gallery-filters">
+    <button class="gf-btn active" onclick="setFilter(this)">All</button>
+    <button class="gf-btn" onclick="setFilter(this)">Rapids</button>
+    <button class="gf-btn" onclick="setFilter(this)">Scenery</button>
+    <button class="gf-btn" onclick="setFilter(this)">Groups</button>
+    <button class="gf-btn" onclick="setFilter(this)">Wildlife</button>
+    <button class="gf-btn" onclick="setFilter(this)">Night</button>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="gallery-item wide" onclick="showScreen('screen-book')">🌊<div class="gi-overlay">Grand Canyon Rapids</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">🚣<div class="gi-overlay">Class IV Run</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">🏔️<div class="gi-overlay">Rocky Mountain</div></div>
+    <div class="gallery-item wide" onclick="showScreen('screen-book')">🌅<div class="gi-overlay">Sunset Float</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">🦅<div class="gi-overlay">Eagle Sighting</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">💦<div class="gi-overlay">The Big Drop</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">👨‍👩‍👧<div class="gi-overlay">Family Fun</div></div>
+    <div class="gallery-item" onclick="showScreen('screen-book')">🌙<div class="gi-overlay">Moonlight Trip</div></div>
+    <div class="gallery-item wide" onclick="showScreen('screen-book')">🏕️<div class="gi-overlay">Riverside Camp</div></div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-book')">Book Your Adventure →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ REVIEWS ═══════════════════════════════════════ -->
+<div class="screen" id="screen-reviews">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Reviews &amp; Ratings</div>
+  </div>
+
+  <div class="overall-rating">
+    <div>
+      <div class="or-num">4.9</div>
+      <div class="or-stars">★★★★★</div>
+      <div class="or-count">312 reviews</div>
+    </div>
+    <div style="flex:1;">
+      <div class="rating-bar"><div class="rb-label">5</div><div class="rb-bar"><div class="rb-fill" style="width:92%"></div></div><span style="font-size:11px;color:#4a7a8a;margin-left:6px;">287</span></div>
+      <div class="rating-bar"><div class="rb-label">4</div><div class="rb-bar"><div class="rb-fill" style="width:6%"></div></div><span style="font-size:11px;color:#4a7a8a;margin-left:6px;">18</span></div>
+      <div class="rating-bar"><div class="rb-label">3</div><div class="rb-bar"><div class="rb-fill" style="width:2%"></div></div><span style="font-size:11px;color:#4a7a8a;margin-left:6px;">5</span></div>
+      <div class="rating-bar"><div class="rb-label">2</div><div class="rb-bar"><div class="rb-fill" style="width:1%"></div></div><span style="font-size:11px;color:#4a7a8a;margin-left:6px;">2</span></div>
+      <div class="rating-bar"><div class="rb-label">1</div><div class="rb-bar"><div class="rb-fill" style="width:0%"></div></div><span style="font-size:11px;color:#4a7a8a;margin-left:6px;">0</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">Recent Reviews</div>
+
+  <div class="review-card">
+    <div class="rc-header">
+      <div class="rc-avatar">😊</div>
+      <div>
+        <div class="rc-name">Jenna T.</div>
+        <div class="rc-date">June 14, 2025</div>
+        <div class="rc-trip">Grand Canyon Express</div>
+      </div>
+      <div class="rc-stars">★★★★★</div>
+    </div>
+    <div class="rc-text">"Absolutely the most thrilling experience of my life! Marcus was an incredible guide — professional, funny and kept us totally safe through every rapid. Will be back next summer!"</div>
+  </div>
+
+  <div class="review-card">
+    <div class="rc-header">
+      <div class="rc-avatar">🤠</div>
+      <div>
+        <div class="rc-name">Derek & Lisa K.</div>
+        <div class="rc-date">June 10, 2025</div>
+        <div class="rc-trip">Family Splash Zone</div>
+      </div>
+      <div class="rc-stars">★★★★★</div>
+    </div>
+    <div class="rc-text">"Took our kids (8 and 11) and they LOVED it. Jake was amazing with the kids. Everything was so well organized. The riverside picnic was a great bonus!"</div>
+  </div>
+
+  <div class="review-card">
+    <div class="rc-header">
+      <div class="rc-avatar">🏄</div>
+      <div>
+        <div class="rc-name">Ryan M.</div>
+        <div class="rc-date">June 5, 2025</div>
+        <div class="rc-trip">Rocky Mountain Full Day</div>
+      </div>
+      <div class="rc-stars">★★★★★</div>
+    </div>
+    <div class="rc-text">"Did the Class V full day with 3 friends. Absolutely gnarly in the best way possible. Sofia's expertise was unmatched. The BBQ at the end was incredible. 10/10!"</div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-book')">Book & Leave Your Review →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MAPS ═══════════════════════════════════════ -->
+<div class="screen" id="screen-maps">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Maps &amp; Directions</div>
+  </div>
+
+  <div class="map-placeholder" style="margin-top:16px;">
+    <div class="map-grid"></div>
+    <div class="map-marker">📍</div>
+    <div class="map-label">Rapids Ready Base Camp</div>
+    <div class="map-sub">Glenwood Springs, CO 81601</div>
+  </div>
+
+  <div class="location-card">
+    <div class="lc-title">📌 Base Camp Address</div>
+    <div class="lc-addr">1420 River Road, Suite A<br>Glenwood Springs, CO 81601<br>Near the Grand Avenue Bridge</div>
+    <div class="direction-row">
+      <button class="btn-primary" style="flex:1;font-size:13px;padding:11px 10px;" onclick="showScreen('screen-reminders')">🗺 Get Directions</button>
+      <button class="btn-secondary" style="flex:1;font-size:13px;padding:11px 10px;border-radius:10px;" onclick="showScreen('screen-reminders')">📞 Call Us</button>
+    </div>
+  </div>
+
+  <div class="section-title">Hours of Operation</div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="hours-row"><div class="day">Sunday</div><div class="time">7:00 AM – 6:00 PM</div></div>
+      <div class="hours-row"><div class="day">Monday</div><div class="time">8:00 AM – 5:00 PM</div></div>
+      <div class="hours-row"><div class="day">Tuesday</div><div class="time">8:00 AM – 5:00 PM</div></div>
+      <div class="hours-row"><div class="day">Wednesday</div><div class="time">8:00 AM – 5:00 PM</div></div>
+      <div class="hours-row"><div class="day">Thursday</div><div class="time">8:00 AM – 5:00 PM</div></div>
+      <div class="hours-row today"><div class="day">Friday ← Today</div><div class="time">7:00 AM – 7:00 PM</div></div>
+      <div class="hours-row" style="border:none;"><div class="day">Saturday</div><div class="time">7:00 AM – 7:00 PM</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Getting Here</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span style="font-size:22px;">🚗</span>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;">By Car</div><div style="font-size:12px;color:#4a7a8a;margin-top:2px;">Take I-70 Exit 116 toward Glenwood Springs. Turn left on River Rd. Look for the Rapids Ready orange sign.</div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0;">
+        <span style="font-size:22px;">🅿️</span>
+        <div><div style="font-size:13px;font-weight:700;color:#fff;">Parking</div><div style="font-size:12px;color:#4a7a8a;margin-top:2px;">Free parking lot on-site. Overflow parking available at Riverside Park (2 min walk).</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-book')">Book Now — We'll See You Soon! →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MORE ═══════════════════════════════════════ -->
+<div class="screen" id="screen-more">
+  <div class="app-header">
+    <div class="wordmark">Rapids<span>Ready</span></div>
+    <div class="tagline">Explore More</div>
+  </div>
+
+  <div class="section-title" style="margin-top:16px;">All Features</div>
+  <div class="card">
+    <div class="card-inner" style="padding:8px 16px;">
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;border-bottom:1px solid #0a4d6822;" onclick="showScreen('screen-staff')">
+        <span style="font-size:24px;">👥</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Guide Profiles</div><div style="font-size:12px;color:#4a7a8a;">Meet our expert team</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;border-bottom:1px solid #0a4d6822;" onclick="showScreen('screen-reminders')">
+        <span style="font-size:24px;">⏰</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Appointment Reminders</div><div style="font-size:12px;color:#4a7a8a;">Countdown & notifications</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;border-bottom:1px solid #0a4d6822;" onclick="showScreen('screen-waitlist')">
+        <span style="font-size:24px;">📋</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Waitlist</div><div style="font-size:12px;color:#4a7a8a;">Join when trips are full</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;border-bottom:1px solid #0a4d6822;" onclick="showScreen('screen-reviews')">
+        <span style="font-size:24px;">⭐</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Reviews & Ratings</div><div style="font-size:12px;color:#4a7a8a;">4.9 stars · 312 reviews</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;border-bottom:1px solid #0a4d6822;" onclick="showScreen('screen-maps')">
+        <span style="font-size:24px;">📍</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Maps & Directions</div><div style="font-size:12px;color:#4a7a8a;">Glenwood Springs, CO</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 0;cursor:pointer;" onclick="showScreen('screen-payments')">
+        <span style="font-size:24px;">💳</span><div><div style="font-size:14px;font-weight:700;color:#fff;">Payments</div><div style="font-size:12px;color:#4a7a8a;">Secure checkout</div></div><span style="margin-left:auto;color:#4a7a8a;">›</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">About Us</div>
+  <div class="card">
+    <div class="card-inner">
+      <div style="font-size:32px;text-align:center;margin-bottom:12px;">🌊</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin-bottom:8px;">WhiteWater Rafting & Adventure Co.</div>
+      <div style="font-size:13px;color:#7ab8cc;text-align:center;line-height:1.7;">Est. 2010 · Colorado's premier rafting outfitter. 15+ years of safe, thrilling, and unforgettable river adventures on the Colorado, Arkansas, and Eagle Rivers.</div>
+      <div style="display:flex;justify-content:space-around;margin-top:16px;">
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#ff6b35;">15+</div><div style="font-size:11px;color:#4a7a8a;">Years</div></div>
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#ff6b35;">8K+</div><div style="font-size:11px;color:#4a7a8a;">Guests</div></div>
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#ff6b35;">0</div><div style="font-size:11px;color:#4a7a8a;">Incidents</div></div>
+        <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#ff6b35;">4.9★</div><div style="font-size:11px;color:#4a7a8a;">Rating</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:0 16px 16px;">
+    <button class="btn-primary" onclick="showScreen('screen-book')">Book Your Adventure →</button>
+  </div>
+</div>
+
+<script>
+function showScreen(id){
+  var s=document.querySelectorAll('.screen');
+  for(var i=0;i<s.length;i++){s[i].classList.remove('active');}
+  var el=document.getElementById(id);
+  if(el){el.classList.add('active');}
+  var t=document.querySelectorAll('.tab');
+  for(var j=0;j<t.length;j++){t[j].classList.remove('tabon');}
+  var bt=document.getElementById('tab-'+id.replace('screen-',''));
+  if(bt){bt.classList.add('tabon');}
+  window.scrollTo(0,0);
+}
+
+function selectDate(el){
+  var all=document.querySelectorAll('.date-num');
+  for(var i=0;i<all.length;i++){all[i].classList.remove('selected');}
+  el.classList.add('selected');
+}
+
+function selectTime(el){
+  var all=document.querySelectorAll('.time-slot');
+  for(var i=0;i<all.length;i++){all[i].classList.remove('selected');}
+  el.classList.add('selected');
+}
+
+var guestA=2,guestY=0;
+function changeGuest(type,delta){
+  if(type==='a'){guestA=Math.max(1,guestA+delta);document.getElementById('guest-a').textContent=guestA;}
+  if(type==='y'){guestY=Math.max(0,guestY+delta);document.getElementById('guest-y').textContent=guestY;}
+}
+
+function toggleReminder(el){
+  el.classList.toggle('on');
+}
+
+function setFilter(el){
+  var all=document.querySelectorAll('.gf-btn');
+  for(var i=0;i<all.length;i++){all[i].classList.remove('active');}
+  el.classList.add('active');
+}
+</script>
+<style>.screen{display:none!important}.screen.active{display:block!important}.tab.tabon{opacity:1!important;filter:brightness(1.4)}</style>
+<script>
+(function(){
+  function showScreen(id){
+    if(id && id.indexOf('screen-')!==0){id='screen-'+id;}
+    var s=document.querySelectorAll('.screen');
+    for(var i=0;i<s.length;i++){s[i].classList.remove('active');}
+    var el=document.getElementById(id)||document.querySelector('.screen[data-screen="'+id.replace('screen-','')+'"]');
+    if(el){el.classList.add('active');}
+    var t=document.querySelectorAll('.tab');
+    for(var j=0;j<t.length;j++){t[j].classList.remove('tabon');}
+    var bt=document.getElementById('tab-'+id.replace('screen-',''));
+    if(bt){bt.classList.add('tabon');}
+    window.scrollTo(0,0);
+  }
+  window.showScreen=showScreen;
+  document.addEventListener('DOMContentLoaded',function(){
+    // Make sure at least one screen is visible on load.
+    var screens=document.querySelectorAll('.screen');
+    if(screens.length){
+      var anyActive=document.querySelector('.screen.active');
+      if(!anyActive){screens[0].classList.add('active');}
+    }
+    // Backup: wire any element that references showScreen via data-nav too.
+    var navs=document.querySelectorAll('[data-nav]');
+    for(var k=0;k<navs.length;k++){
+      (function(n){n.addEventListener('click',function(){showScreen(n.getAttribute('data-nav'));});})(navs[k]);
+    }
+  });
+})();
+</script></body>
+</html>
